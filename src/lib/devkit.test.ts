@@ -16,7 +16,7 @@ describe('base64Url encode/decode', () => {
     const config = defaultConfig();
     const encoded = base64UrlEncode(JSON.stringify(config));
     const decoded = JSON.parse(base64UrlDecode(encoded));
-    expect(decoded.url).toBe('/demo/');
+    expect(decoded.url).toBe('/demo/index.html');
     expect(decoded.platform).toBe('ios');
     expect(decoded.user.id).toBe(424242);
   });
@@ -44,7 +44,7 @@ describe('base64Url encode/decode', () => {
 describe('defaultConfig', () => {
   it('returns a valid config with all required fields', () => {
     const c = defaultConfig();
-    expect(c.url).toBe('/demo/');
+    expect(c.url).toBe('/demo/index.html');
     expect(c.platform).toBe('ios');
     expect(c.version).toBe('8.0');
     expect(c.colorScheme).toBe('dark');
@@ -86,7 +86,7 @@ describe('buildIframeUrl', () => {
   it('appends tma_devkit hash fragment', () => {
     const c = defaultConfig();
     const url = buildIframeUrl(c);
-    expect(url).toMatch(/\/demo\/#tma_devkit=/);
+    expect(url).toMatch(/\/demo\/index\.html#tma_devkit=/);
   });
 
   it('handles custom url', () => {

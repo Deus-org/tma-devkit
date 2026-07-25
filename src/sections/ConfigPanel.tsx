@@ -54,24 +54,12 @@ import {
 } from 'lucide-react';
 
 const THEME_KEYS = [
-  'bg_color',
-  'text_color',
-  'hint_color',
-  'link_color',
-  'button_color',
-  'button_text_color',
-  'secondary_bg_color',
-  'header_bg_color',
-  'bottom_bar_bg_color',
-  'accent_text_color',
-  'section_bg_color',
-  'section_header_text_color',
-  'section_separator_color',
-  'subtitle_text_color',
-  'destructive_text_color',
+  'bg_color', 'text_color', 'hint_color', 'link_color', 'button_color',
+  'button_text_color', 'secondary_bg_color', 'header_bg_color', 'bottom_bar_bg_color',
+  'accent_text_color', 'section_bg_color', 'section_header_text_color',
+  'section_separator_color', 'subtitle_text_color', 'destructive_text_color',
 ];
 
-/* --------------- built-in quick scenarios --------------- */
 interface QuickScenario {
   id: string;
   icon: React.ReactNode;
@@ -122,10 +110,10 @@ export function ConfigPanel() {
   const snippet = `<script src="${window.location.origin}/tma-devkit.js"></script>`;
   const configJson = JSON.stringify(config, null, 2);
 
-  function copyText(text: string, which: 'snippet' | 'url' | 'json') {
+  function copyText(text: string, which: 'snippet' | 'url') {
     navigator.clipboard?.writeText(text).then(() => {
       if (which === 'snippet') { setCopied(true); setTimeout(() => setCopied(false), 1200); }
-      else if (which === 'url') { setCopiedUrl(true); setTimeout(() => setCopiedUrl(false), 1200); }
+      else { setCopiedUrl(true); setTimeout(() => setCopiedUrl(false), 1200); }
     });
   }
 
@@ -146,10 +134,8 @@ export function ConfigPanel() {
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result as string);
-        if (parsed.url && parsed.platform) {
-          loadConfig(parsed as DevkitConfig);
-        }
-      } catch { /* invalid json */ }
+        if (parsed.url && parsed.platform) loadConfig(parsed as DevkitConfig);
+      } catch { /* invalid */ }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -163,7 +149,6 @@ export function ConfigPanel() {
     setDialogOpen(false);
   }
 
-  /* ---------- quick scenarios ---------- */
   const quickScenarios = useMemo<QuickScenario[]>(() => [
     {
       id: 'premium-ios',
@@ -171,9 +156,7 @@ export function ConfigPanel() {
       name: 'Premium User · iOS',
       desc: 'Telegram Premium, iPhone 14, dark theme',
       apply: (b) => ({
-        ...b,
-        platform: 'ios',
-        colorScheme: 'dark',
+        ...b, platform: 'ios', colorScheme: 'dark',
         themeParams: { ...THEME_DARK },
         user: { ...b.user, is_premium: true },
         viewport: { width: 390, height: 844, isExpanded: true },
@@ -185,9 +168,7 @@ export function ConfigPanel() {
       name: 'Free User · Android',
       desc: 'No premium, Android, light theme',
       apply: (b) => ({
-        ...b,
-        platform: 'android',
-        colorScheme: 'light',
+        ...b, platform: 'android', colorScheme: 'light',
         themeParams: { ...THEME_LIGHT },
         user: { ...b.user, is_premium: false },
         viewport: { width: 360, height: 800, isExpanded: true },
@@ -199,8 +180,7 @@ export function ConfigPanel() {
       name: 'New User · start_param',
       desc: 'First open with referral param & expanded view',
       apply: (b) => ({
-        ...b,
-        startParam: 'ref=invite&src=share',
+        ...b, startParam: 'ref=invite&src=share',
         viewport: { ...b.viewport, isExpanded: true },
       }),
     },
@@ -210,14 +190,7 @@ export function ConfigPanel() {
       name: 'Group Chat Launch',
       desc: 'App opened from group, chat_id in context',
       apply: (b) => ({
-        ...b,
-        user: {
-          ...b.user,
-          id: 777000,
-          first_name: 'Group',
-          last_name: 'Context',
-          username: 'group_bot',
-        },
+        ...b, user: { ...b.user, id: 777000, first_name: 'Group', last_name: 'Context', username: 'group_bot' },
       }),
     },
     {
@@ -226,8 +199,7 @@ export function ConfigPanel() {
       name: 'Desktop · tDesktop',
       desc: 'Wide viewport, web platform',
       apply: (b) => ({
-        ...b,
-        platform: 'tdesktop',
+        ...b, platform: 'tdesktop',
         viewport: { width: 1200, height: 800, isExpanded: true },
       }),
     },
@@ -237,17 +209,14 @@ export function ConfigPanel() {
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-4 p-3">
 
-        {/* ---- Quick Scenarios ---- */}
+        {/* Quick Scenarios */}
         <div className="flex flex-col gap-1.5">
           <SectionTitle>Quick scenarios</SectionTitle>
           <div className="flex flex-col gap-1">
             {quickScenarios.map((sc) => (
               <button
                 key={sc.id}
-                onClick={() => {
-                  const c = sc.apply({ ...config });
-                  loadConfig(c);
-                }}
+                onClick={() => loadConfig(sc.apply({ ...config }))}
                 className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-2 text-left transition-colors hover:border-zinc-700 hover:bg-zinc-900"
               >
                 {sc.icon}
@@ -263,15 +232,14 @@ export function ConfigPanel() {
 
         <Separator className="bg-zinc-800" />
 
-        {/* ---- Saved Presets ---- */}
+        {/* Saved Presets */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <SectionTitle>Saved presets</SectionTitle>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10px] text-zinc-500 hover:text-zinc-300">
-                  <Save className="mr-1 h-3 w-3" />
-                  Save current
+                  <Save className="mr-1 h-3 w-3" /> Save current
                 </Button>
               </DialogTrigger>
               <DialogContent className="border-zinc-800 bg-zinc-950 sm:max-w-sm">
@@ -314,9 +282,7 @@ export function ConfigPanel() {
                   <div className="min-w-0 flex-1" onClick={() => loadPreset(p.id)} role="button" tabIndex={0}>
                     <div className="text-[11px] text-zinc-300 truncate">{p.name}</div>
                     {p.description && <div className="text-[9px] text-zinc-600 truncate">{p.description}</div>}
-                    <div className="text-[9px] text-zinc-700">
-                      {p.config.platform} · {p.config.colorScheme}
-                    </div>
+                    <div className="text-[9px] text-zinc-700">{p.config.platform} · {p.config.colorScheme}</div>
                   </div>
                   <button onClick={() => loadPreset(p.id)} className="rounded p-0.5 text-zinc-500 hover:text-zinc-300" title="Load">
                     <Play className="h-3 w-3" />
@@ -348,10 +314,7 @@ export function ConfigPanel() {
               <Play className="mr-1 h-3 w-3" /> Apply & reload
             </Button>
             <Button
-              size="sm"
-              variant="outline"
-              onClick={pushLive}
-              disabled={!connected}
+              size="sm" variant="outline" onClick={pushLive} disabled={!connected}
               title={connected ? 'Push theme/viewport live' : 'Connect first (Apply)'}
               className="h-8 flex-1 border-zinc-700 text-xs"
             >
@@ -369,16 +332,11 @@ export function ConfigPanel() {
             <div>
               <Label className="text-xs text-zinc-400">Platform</Label>
               <Select value={config.platform} onValueChange={(v) => patch({ platform: v })}>
-                <SelectTrigger className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent className="border-zinc-800 bg-zinc-900">
                   {PLATFORMS.map((p) => (
                     <SelectItem key={p} value={p} className="text-xs">
-                      <span className="flex items-center gap-1.5">
-                        <PlatformIcon platform={p} />
-                        {p}
-                      </span>
+                      <span className="flex items-center gap-1.5"><PlatformIcon platform={p} />{p}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -386,37 +344,22 @@ export function ConfigPanel() {
             </div>
             <div>
               <Label className="text-xs text-zinc-400">Bot API ver.</Label>
-              <Input
-                value={config.version}
-                onChange={(e) => patch({ version: e.target.value })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-                spellCheck={false}
-              />
+              <Input value={config.version} onChange={(e) => patch({ version: e.target.value })}
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" spellCheck={false} />
             </div>
           </div>
           <div>
             <Label className="text-xs text-zinc-400">Color scheme</Label>
             <div className="mt-1 grid grid-cols-2 gap-1">
               {(['light', 'dark'] as const).map((scheme) => (
-                <Button
-                  key={scheme}
-                  size="sm"
+                <Button key={scheme} size="sm"
                   variant={config.colorScheme === scheme ? 'default' : 'outline'}
-                  className={
-                    config.colorScheme === scheme
-                      ? 'h-7 text-xs'
-                      : 'h-7 border-zinc-700 text-xs text-zinc-400'
-                  }
-                  onClick={() =>
-                    setConfig((c) => ({
-                      ...c,
-                      colorScheme: scheme,
-                      themeParams: { ...(scheme === 'dark' ? THEME_DARK : THEME_LIGHT) },
-                    }))
-                  }
-                >
-                  {scheme}
-                </Button>
+                  className={config.colorScheme === scheme ? 'h-7 text-xs' : 'h-7 border-zinc-700 text-xs text-zinc-400'}
+                  onClick={() => setConfig((c) => ({
+                    ...c, colorScheme: scheme,
+                    themeParams: { ...(scheme === 'dark' ? THEME_DARK : THEME_LIGHT) },
+                  }))}
+                >{scheme}</Button>
               ))}
             </div>
           </div>
@@ -431,53 +374,28 @@ export function ConfigPanel() {
             value={`${config.viewport.width}x${config.viewport.height}`}
             onValueChange={(v) => {
               const preset = VIEWPORT_PRESETS.find((p) => `${p.width}x${p.height}` === v);
-              if (preset) {
-                setConfig((c) => ({
-                  ...c,
-                  viewport: { ...c.viewport, width: preset.width, height: preset.height },
-                }));
-              }
+              if (preset) setConfig((c) => ({ ...c, viewport: { ...c.viewport, width: preset.width, height: preset.height } }));
             }}
           >
-            <SelectTrigger className="h-8 border-zinc-800 bg-zinc-900 text-xs">
-              <SelectValue placeholder="Custom" />
-            </SelectTrigger>
+            <SelectTrigger className="h-8 border-zinc-800 bg-zinc-900 text-xs"><SelectValue placeholder="Custom" /></SelectTrigger>
             <SelectContent className="border-zinc-800 bg-zinc-900">
               {VIEWPORT_PRESETS.map((p) => (
-                <SelectItem key={p.name} value={`${p.width}x${p.height}`} className="text-xs">
-                  {p.name}
-                </SelectItem>
+                <SelectItem key={p.name} value={`${p.width}x${p.height}`} className="text-xs">{p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs text-zinc-400">Width</Label>
-              <Input
-                type="number"
-                value={config.viewport.width}
-                onChange={(e) =>
-                  setConfig((c) => ({
-                    ...c,
-                    viewport: { ...c.viewport, width: Number(e.target.value) || 390 },
-                  }))
-                }
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+              <Input type="number" value={config.viewport.width}
+                onChange={(e) => setConfig((c) => ({ ...c, viewport: { ...c.viewport, width: Number(e.target.value) || 390 } }))}
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
             <div>
               <Label className="text-xs text-zinc-400">Height</Label>
-              <Input
-                type="number"
-                value={config.viewport.height}
-                onChange={(e) =>
-                  setConfig((c) => ({
-                    ...c,
-                    viewport: { ...c.viewport, height: Number(e.target.value) || 800 },
-                  }))
-                }
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+              <Input type="number" value={config.viewport.height}
+                onChange={(e) => setConfig((c) => ({ ...c, viewport: { ...c.viewport, height: Number(e.target.value) || 800 } }))}
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
           </div>
         </div>
@@ -490,85 +408,59 @@ export function ConfigPanel() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs text-zinc-400">ID</Label>
-              <Input
-                type="number"
-                value={config.user.id}
+              <Input type="number" value={config.user.id}
                 onChange={(e) => patchUser({ id: Number(e.target.value) || 0 })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
             <div>
               <Label className="text-xs text-zinc-400">Username</Label>
-              <Input
-                value={config.user.username ?? ''}
+              <Input value={config.user.username ?? ''}
                 onChange={(e) => patchUser({ username: e.target.value })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-                spellCheck={false}
-              />
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" spellCheck={false} />
             </div>
             <div>
               <Label className="text-xs text-zinc-400">First name</Label>
-              <Input
-                value={config.user.first_name}
+              <Input value={config.user.first_name}
                 onChange={(e) => patchUser({ first_name: e.target.value })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
             <div>
               <Label className="text-xs text-zinc-400">Last name</Label>
-              <Input
-                value={config.user.last_name ?? ''}
+              <Input value={config.user.last_name ?? ''}
                 onChange={(e) => patchUser({ last_name: e.target.value })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
             <div>
               <Label className="text-xs text-zinc-400">Lang code</Label>
-              <Input
-                value={config.user.language_code ?? ''}
+              <Input value={config.user.language_code ?? ''}
                 onChange={(e) => patchUser({ language_code: e.target.value })}
-                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              />
+                className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" />
             </div>
             <div className="flex flex-col gap-1 justify-end pb-1">
               <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={!!config.user.is_premium}
+                <input type="checkbox" checked={!!config.user.is_premium}
                   onChange={(e) => patchUser({ is_premium: e.target.checked })}
-                  className="h-3.5 w-3.5 accent-sky-500"
-                />
+                  className="h-3.5 w-3.5 accent-sky-500" />
                 <span className="text-[10px] text-zinc-500">is_premium</span>
               </label>
             </div>
           </div>
           <div>
             <Label className="text-xs text-zinc-400">Photo URL</Label>
-            <Input
-              value={config.user.photo_url ?? ''}
+            <Input value={config.user.photo_url ?? ''}
               onChange={(e) => patchUser({ photo_url: e.target.value || undefined })}
-              placeholder="https://…"
-              className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              spellCheck={false}
-            />
+              placeholder="https://…" className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" spellCheck={false} />
           </div>
           <div>
             <Label className="text-xs text-zinc-400">Bot token (initData signing)</Label>
-            <Input
-              value={config.botToken}
-              onChange={(e) => patch({ botToken: e.target.value })}
-              className="mt-1 h-8 border-zinc-800 bg-zinc-900 font-mono text-[11px] text-zinc-200"
-              spellCheck={false}
-            />
+            <Input value={config.botToken} onChange={(e) => patch({ botToken: e.target.value })}
+              className="mt-1 h-8 border-zinc-800 bg-zinc-900 font-mono text-[11px] text-zinc-200" spellCheck={false} />
           </div>
           <div>
             <Label className="text-xs text-zinc-400">start_param</Label>
-            <Input
-              value={config.startParam ?? ''}
+            <Input value={config.startParam ?? ''}
               onChange={(e) => patch({ startParam: e.target.value })}
-              className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
-              spellCheck={false}
-            />
+              className="mt-1 h-8 border-zinc-800 bg-zinc-900 text-xs text-zinc-200" spellCheck={false} />
           </div>
         </div>
 
@@ -581,8 +473,7 @@ export function ConfigPanel() {
             <Dialog open={csDialogOpen} onOpenChange={setCsDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10px] text-zinc-500 hover:text-zinc-300">
-                  <Cloud className="mr-1 h-3 w-3" />
-                  Manage keys
+                  <Cloud className="mr-1 h-3 w-3" /> Manage keys
                 </Button>
               </DialogTrigger>
               <DialogContent className="border-zinc-800 bg-zinc-950 sm:max-w-md">
@@ -594,66 +485,38 @@ export function ConfigPanel() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2 max-h-[300px] overflow-auto">
-                  {cloudKeys.length === 0 && (
-                    <p className="text-xs text-zinc-600 text-center py-4">No keys stored. Add some below.</p>
-                  )}
+                  {cloudKeys.length === 0 && <p className="text-xs text-zinc-600 text-center py-4">No keys stored. Add some below.</p>}
                   {cloudKeys.map((kv, i) => (
                     <div key={i} className="flex items-center gap-2 rounded border border-zinc-800 bg-zinc-900/60 px-2 py-1.5">
                       <Key className="h-3 w-3 shrink-0 text-zinc-600" />
                       <code className="flex-1 text-[10px] text-zinc-300 truncate">{kv.key}</code>
                       <code className="text-[10px] text-zinc-500 truncate max-w-[120px]">{kv.value}</code>
-                      <button
-                        onClick={() => setCloudKeys((prev) => prev.filter((_, j) => j !== i))}
-                        className="text-zinc-600 hover:text-red-400"
-                      >
+                      <button onClick={() => setCloudKeys((prev) => prev.filter((_, j) => j !== i))} className="text-zinc-600 hover:text-red-400">
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="key"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    className="h-7 flex-1 border-zinc-800 bg-zinc-900 text-[10px] text-zinc-300"
-                    spellCheck={false}
-                  />
-                  <Input
-                    placeholder="value"
-                    value={newKeyValue}
-                    onChange={(e) => setNewKeyValue(e.target.value)}
-                    className="h-7 flex-[2] border-zinc-800 bg-zinc-900 text-[10px] text-zinc-300"
-                    spellCheck={false}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 border-zinc-700 text-xs"
+                  <Input placeholder="key" value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)}
+                    className="h-7 flex-1 border-zinc-800 bg-zinc-900 text-[10px] text-zinc-300" spellCheck={false} />
+                  <Input placeholder="value" value={newKeyValue} onChange={(e) => setNewKeyValue(e.target.value)}
+                    className="h-7 flex-[2] border-zinc-800 bg-zinc-900 text-[10px] text-zinc-300" spellCheck={false} />
+                  <Button size="sm" variant="outline" className="h-7 border-zinc-700 text-xs"
                     onClick={() => {
                       if (!newKeyName.trim()) return;
                       setCloudKeys((prev) => [...prev, { key: newKeyName.trim(), value: newKeyValue }]);
-                      setNewKeyName('');
-                      setNewKeyValue('');
-                    }}
-                  >
+                      setNewKeyName(''); setNewKeyValue('');
+                    }}>
                     <Plus className="h-3 w-3" />
                   </Button>
                 </div>
                 <DialogFooter>
-                  <Button
-                    size="sm"
-                    className="h-8 text-xs"
+                  <Button size="sm" className="h-8 text-xs"
                     onClick={() => {
-                      // push each key into mock's localStorageFacade format
-                      cloudKeys.forEach((kv) => {
-                        localStorage.setItem('tma-devkit:cloud:' + kv.key, kv.value);
-                      });
+                      cloudKeys.forEach((kv) => localStorage.setItem('tma-devkit:cloud:' + kv.key, kv.value));
                       setCsDialogOpen(false);
-                    }}
-                  >
-                    Apply keys
-                  </Button>
+                    }}>Apply keys</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -661,9 +524,7 @@ export function ConfigPanel() {
           <div className="flex items-center gap-1.5 rounded border border-zinc-800/50 bg-zinc-900/40 px-2 py-1.5">
             <Cloud className="h-3 w-3 text-zinc-600" />
             <span className="text-[10px] text-zinc-500">
-              {cloudKeys.length > 0
-                ? `${cloudKeys.length} keys stored · click Manage to edit`
-                : 'No keys — click Manage to add'}
+              {cloudKeys.length > 0 ? `${cloudKeys.length} keys stored — click Manage to edit` : 'No keys — click Manage to add'}
             </span>
           </div>
         </div>
@@ -676,19 +537,11 @@ export function ConfigPanel() {
           <div className="flex flex-col gap-1.5">
             {THEME_KEYS.map((key) => (
               <div key={key} className="flex items-center gap-2">
-                <span
-                  className="h-5 w-5 shrink-0 rounded border border-zinc-700"
-                  style={{ backgroundColor: config.themeParams[key] || 'transparent' }}
-                />
-                <span className="w-[130px] truncate font-mono text-[10px] text-zinc-500">
-                  {key}
-                </span>
-                <Input
-                  value={config.themeParams[key] ?? ''}
-                  onChange={(e) => patchTheme(key, e.target.value)}
-                  className="h-7 border-zinc-800 bg-zinc-900 font-mono text-[11px] text-zinc-200"
-                  spellCheck={false}
-                />
+                <span className="h-5 w-5 shrink-0 rounded border border-zinc-700"
+                  style={{ backgroundColor: config.themeParams[key] || 'transparent' }} />
+                <span className="w-[130px] truncate font-mono text-[10px] text-zinc-500">{key}</span>
+                <Input value={config.themeParams[key] ?? ''} onChange={(e) => patchTheme(key, e.target.value)}
+                  className="h-7 border-zinc-800 bg-zinc-900 font-mono text-[11px] text-zinc-200" spellCheck={false} />
               </div>
             ))}
           </div>
@@ -700,33 +553,16 @@ export function ConfigPanel() {
         <div className="flex flex-col gap-2">
           <SectionTitle>Import / Export</SectionTitle>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 flex-1 border-zinc-700 text-xs"
-              onClick={exportJson}
-            >
+            <Button size="sm" variant="outline" className="h-7 flex-1 border-zinc-700 text-xs" onClick={exportJson}>
               <FileDown className="mr-1 h-3 w-3" /> Export JSON
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 flex-1 border-zinc-700 text-xs relative overflow-hidden"
-              onClick={() => document.getElementById('config-import')?.click()}
-            >
+            <Button size="sm" variant="outline" className="h-7 flex-1 border-zinc-700 text-xs relative overflow-hidden"
+              onClick={() => document.getElementById('config-import')?.click()}>
               <Upload className="mr-1 h-3 w-3" /> Import
             </Button>
-            <input
-              id="config-import"
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
+            <input id="config-import" type="file" accept=".json" onChange={handleImport} className="hidden" />
           </div>
-          <p className="text-[9px] text-zinc-600">
-            Export saves the full config. Import loads it instantly.
-          </p>
+          <p className="text-[9px] text-zinc-600">Export saves the full config. Import loads it instantly.</p>
         </div>
 
         <Separator className="bg-zinc-800" />
@@ -734,36 +570,19 @@ export function ConfigPanel() {
         {/* Snippet */}
         <div className="flex flex-col gap-2">
           <SectionTitle>Use in your own app</SectionTitle>
-          <div className="rounded-md border border-zinc-800 bg-zinc-900 p-2 font-mono text-[10px] leading-relaxed text-zinc-400 break-all">
-            {snippet}
-          </div>
+          <div className="rounded-md border border-zinc-800 bg-zinc-900 p-2 font-mono text-[10px] leading-relaxed text-zinc-400 break-all">{snippet}</div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 flex-1 border-zinc-700 text-xs"
-              onClick={() => copyText(snippet, 'snippet')}
-            >
-              {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
-              {copied ? 'Copied' : 'Copy snippet'}
+            <Button size="sm" variant="outline" className="h-7 flex-1 border-zinc-700 text-xs" onClick={() => copyText(snippet, 'snippet')}>
+              {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}{copied ? 'Copied' : 'Copy snippet'}
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 flex-1 border-zinc-700 text-xs"
-              onClick={() => copyText(buildIframeUrl(config), 'url')}
-            >
-              {copiedUrl ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
-              {copiedUrl ? 'Copied' : 'Copy launch URL'}
+            <Button size="sm" variant="outline" className="h-7 flex-1 border-zinc-700 text-xs" onClick={() => copyText(buildIframeUrl(config), 'url')}>
+              {copiedUrl ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}{copiedUrl ? 'Copied' : 'Copy launch URL'}
             </Button>
           </div>
           <p className="text-[10px] leading-snug text-zinc-600">
-            The script tag only activates with a devkit config (URL hash or panel postMessage);
-            it is inert otherwise, so it is safe to keep during development.
+            The script tag only activates with a devkit config; it is inert otherwise, safe to keep during development.
           </p>
         </div>
-
-        {/* Bottom spacer */}
         <div className="h-8" />
       </div>
     </ScrollArea>

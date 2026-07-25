@@ -74,7 +74,11 @@ function savePresetsToStorage(presets: DevkitPreset[]) {
 function loadActivePreset(): DevkitConfig | null {
   try {
     const raw = localStorage.getItem(PRESET_ACTIVE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const config: DevkitConfig = JSON.parse(raw);
+    // Migration: old /demo/ path doesn't work with Vite dev-server
+    if (config.url === '/demo/') config.url = '/demo/index.html';
+    return config;
   } catch {
     return null;
   }

@@ -104,7 +104,7 @@ export const DEFAULT_BOT_TOKEN = '123456789:DEVKIT_TEST_TOKEN';
 
 export function defaultConfig(): DevkitConfig {
   return {
-    url: '/demo/',
+    url: '/demo/index.html',
     platform: 'ios',
     version: '8.0',
     colorScheme: 'dark',
