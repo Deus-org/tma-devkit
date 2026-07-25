@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TMA DevKit — @telegram-apps/sdk v3 demo</title>
+  <!-- TMA DevKit mock environment first -->
+  <script src="/tma-devkit.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      background: var(--tg-theme-bg-color, #0e1621);
+      color: var(--tg-theme-text-color, #e8e8e8);
+      padding: 16px; font-size: 12px; line-height: 1.6;
+    }
+    h1 { font-size: 15px; margin-bottom: 4px; }
+    .sub { color: var(--tg-theme-hint-color, #8b9aab); margin-bottom: 14px; font-size: 11px; }
+    .card {
+      background: var(--tg-theme-secondary-bg-color, #182533);
+      border-radius: 10px; padding: 12px; margin-bottom: 12px;
+      overflow-x: auto;
+    }
+    .card h2 {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--tg-theme-link-color, #6ab2f2); margin-bottom: 6px;
+    }
+    pre { white-space: pre-wrap; word-break: break-word; font-size: 11px; }
+    .ok { color: #4ade80; }
+    .err { color: #f87171; }
+    button {
+      background: var(--tg-theme-button-color, #5288c1);
+      color: var(--tg-theme-button-text-color, #fff);
+      border: none; border-radius: 8px; padding: 8px 12px;
+      font: inherit; cursor: pointer; margin-right: 6px; margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>@telegram-apps/sdk v3 ↔ TMA DevKit</h1>
+  <div class="sub">Proves the SDK reads the mocked launch params (location hash / sessionStorage fallback).</div>
+
+  <div class="card"><h2>isTMA()</h2><pre id="out-istma">…</pre></div>
+  <div class="card"><h2>retrieveLaunchParams()</h2><pre id="out-lp">…</pre></div>
+  <div class="card"><h2>retrieveRawInitData() + hash check</h2><pre id="out-raw">…</pre></div>
+  <div class="card">
+    <h2>SDK components (best effort)</h2>
+    <pre id="out-comp">…</pre>
+    <button id="btn-main">mainButton.setParams({isVisible:true})</button>
+    <button id="btn-ready">miniApp.ready()</button>
+  </div>
+
+  <script type="module">
+    const istmaEl = document.getElementById('out-istma');
+    const lpEl = document.getElementById('out-lp');
+    const rawEl = document.getElementById('out-raw');
+    const compEl = document.getElementById('out-comp');
+
+    function show(el, value, isErr) {
+      el.className = isErr ? 'err' : 'ok';
+      el.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+    }
+
+    async function main() {
+      let sdk;
+      try {
+        sdk = await import('https://esm.sh/@telegram-apps/sdk@3');
+      } catch (e) {
+        show(istmaEl, 'Failed to load @telegram-apps/sdk from esm.sh (network required):\n' + e, true);
+        return;
+      }
+
+      try {
+        show(istmaEl, String(sdk.isTMA('complete')));
+      } catch (e) {
+        show(istmaEl, 'isTMA error: ' + e, true);
+      }
+
+      try {
+        sdk.init();
+      } catch (e) {
+        compEl.textContent = 'init() threw: ' + e;
+      }
+
+      let lp;
+      try {
+        lp = sdk.retrieveLaunchParams();
+        // Serialize Dates etc. safely
+        show(lp, JSON.parse(JSON.stringify(lp, (k, v) => (v instanceof Date ? v.toISOString() : v))));
+      } catch (e) {
+        show(lpEl, 'retrieveLaunchParams error: ' + e, true);
+      }
+
+      try {
+        const raw = sdk.retrieveRawInitData();
+        const hash = new URLSearchParams(raw).get('hash');
+        show(rawEl, {
+          raw,
+          hash,
+          hashLength: hash ? hash.length : 0,
+          note: 'verify on your backend with the bot token (HMAC-SHA-256, "WebAppData")',
+        });
+      } catch (e) {
+        show(rawEl, 'retrieveRawInitData error: ' + e, true);
+      }
+
+      // Component instances (signal-based in v3) — defensive, API may shift.
+      const lines = [];
+      try {
+        const u = sdk.initData?.user?.();
+        lines.push('initData.user() → ' + JSON.stringify(u));
+      } catch (e) { lines.push('initData.user error: ' + e); }
+      try {
+        lines.push('themeParams.isDark() → ' + JSON.stringify(sdk.themeParams?.isDark?.()));
+      } catch (e) { lines.push('themeParams error: ' + e); }
+      try {
+        lines.push('miniApp.isDark() → ' + JSON.stringify(sdk.miniApp?.isDark?.()));
+      } catch (e) { lines.push('miniApp error: ' + e); }
+      try {
+        lines.push('viewport.height() → ' + JSON.stringify(sdk.viewport?.height?.()));
+      } catch (e) { lines.push('viewport error: ' + e); }
+      compEl.textContent = lines.join('\n');
+
+      document.getElementById('btn-main').onclick = () => {
+        try {
+          const mb = sdk.mainButton;
+          if (mb.mount && !mb.isMounted?.()) mb.mount();
+          mb.setParams({ text: 'SDK MAIN', isVisible: true, isEnabled: true });
+          mb.onClick(() => {
+            mb.setParams({ text: 'CLICKED ✓' });
+          });
+          compEl.textContent += '\nmainButton shown (bottom bar rendered by the mock)';
+        } catch (e) {
+          compEl.textContent += '\nmainButton error: ' + e;
+        }
+      };
+      document.getElementById('btn-ready').onclick = () => {
+        try {
+          const ma = sdk.miniApp;
+          if (ma.mount && !ma.isMounted?.()) ma.mount();
+          ma.ready();
+          compEl.textContent += '\nminiApp.ready() sent → web_app_ready in inspector';
+        } catch (e) {
+          compEl.textContent += '\nminiApp.ready error: ' + e;
+        }
+      };
+    }
+
+    main();
+  </script>
+</body>
+</html>
