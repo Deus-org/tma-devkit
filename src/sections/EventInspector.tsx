@@ -13,10 +13,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useDevkit } from '@/hooks/useDevkit';
 import { EMITTABLE_EVENTS, type BridgeLogEntry } from '@/lib/devkit';
+import { analyzeLogs, reportToMarkdown } from '@/lib/analyzer';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
   Ban,
+  Check,
   ChevronDown,
   ChevronRight,
   Download,
@@ -25,6 +27,7 @@ import {
   Pause,
   Play,
   Send,
+  Sparkles,
   Trash2,
   X,
 } from 'lucide-react';
@@ -109,6 +112,8 @@ export function EventInspector() {
     setAutoscroll,
     clearLogs,
     emitEvent,
+    config,
+    appUrl,
   } = useDevkit();
 
   const [emitName, setEmitName] = useState(EMITTABLE_EVENTS[0].name);
@@ -116,6 +121,7 @@ export function EventInspector() {
   const [emitError, setEmitError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'flat' | 'grouped'>('grouped');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [aiCopied, setAiCopied] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const visible = useMemo(() => {
@@ -182,6 +188,28 @@ export function EventInspector() {
     URL.revokeObjectURL(url);
   }
 
+  function exportAiReport() {
+    const scenario = `${config.platform} ${config.colorScheme} · ${config.user.is_premium ? 'Premium' : 'Free'} User`;
+    const report = analyzeLogs(logs, appUrl ?? config.url, scenario);
+    const md = reportToMarkdown(report);
+    navigator.clipboard?.writeText(md).then(() => {
+      setAiCopied(true);
+      setTimeout(() => setAiCopied(false), 1500);
+    }).catch(() => {
+      // clipboard API failed — fallback: select all text in a hidden textarea
+      const ta = document.createElement('textarea');
+      ta.value = md;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setAiCopied(true);
+      setTimeout(() => setAiCopied(false), 1500);
+    });
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* header + controls */}
@@ -228,6 +256,15 @@ export function EventInspector() {
             className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
           >
             <Download className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={exportAiReport}
+            title={aiCopied ? 'Copied!' : 'Export AI Report — copy Markdown to clipboard'}
+            className={`rounded p-1 transition-colors ${
+              aiCopied ? 'text-emerald-400' : 'text-zinc-500 hover:bg-zinc-800 hover:text-purple-400'
+            }`}
+          >
+            {aiCopied ? <Check className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
           </button>
           <button
             onClick={clearLogs}
