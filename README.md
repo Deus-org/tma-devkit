@@ -20,11 +20,11 @@ There is **no official Telegram Mini Apps emulator**. The standard dev loop is p
 
 **Sound familiar?** Here's what actual TMA developers say:
 
-> «Главные сложности — невозможность запустить проект так же просто, как в браузере через localhost, а также **отсутствие консоли разработчика**»
-> — Habr, март 2025
+> "The main difficulty is the inability to run a project as easily as in a browser via localhost — and the **absence of a developer console**."
+> — TMA developer, March 2025
 
-> «Проблема TMA в **отсутствии адекватной тестовой среды**»
-> — workspace.ru, июнь 2025
+> "The problem with TMA is the **lack of an adequate testing environment**."
+> — workspace.ru, June 2025
 
 > «Running Telegram Mini app on localhost» — вопрос на StackOverflow, ответы: костыли с HTTPS, ngrok, localtunnel.
 
@@ -103,6 +103,13 @@ There is **no official Telegram Mini Apps emulator**. The standard dev loop is p
 | **Zoom controls** | Zoom the device stage in/out (25%–200%) with +/- buttons. Auto-fit to container. Reset to 100%. |
 | **Connection status** | Green pulsing dot when the mock is connected. Gray when waiting. |
 | **Live push** | Push theme and viewport changes to the running app without reloading. Tweak `themeParams` and see the result instantly. |
+
+### 🤖 AI Integration
+
+| Feature | Description |
+|---|---|
+| **AI Report Export** | One-click ✨ button copies a full Markdown analysis to clipboard. 8 automated checks (duplicate calls, missing handlers, wrong call order, early-exit). Paste into Cursor, ChatGPT, or Claude for instant debugging. |
+| **MCP Server** | [Model Context Protocol](https://modelcontextprotocol.io/) server — AI assistants debug your Mini App directly. Launch scenarios, collect events, analyze for bugs, emit test events — all from Cursor Chat or Claude. No copy-paste. See [`mcp/`](mcp/) for setup. |
 
 ---
 
