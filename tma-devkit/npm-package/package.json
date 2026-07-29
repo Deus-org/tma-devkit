@@ -1,0 +1,29 @@
+{
+  "name": "tma-devkit",
+  "version": "0.1.0",
+  "description": "TMA DevKit mock script — drop-in Telegram Mini App emulation for development and testing",
+  "license": "MIT",
+  "main": "tma-devkit.js",
+  "browser": "tma-devkit.js",
+  "types": "tma-devkit.d.ts",
+  "files": [
+    "tma-devkit.js",
+    "tma-devkit.d.ts",
+    "README.md"
+  ],
+  "keywords": [
+    "telegram",
+    "mini-apps",
+    "tma",
+    "devtools",
+    "emulator",
+    "mock",
+    "debugging",
+    "webapp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Deus-org/tma-devkit.git"
+  },
+  "homepage": "https://github.com/Deus-org/tma-devkit#readme"
+}
