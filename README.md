@@ -26,12 +26,38 @@ npm run dev        # http://localhost:5188
 
 Then pick your integration:
 
-| # | Method | Best for |
-|---|--------|----------|
-| 1 | **Vite Plugin** — 1 line in `vite.config.ts` | Vite / React projects |
-| 2 | **npx CLI** — zero-install | Any npm project |
-| 3 | **Script tag** — `<script src=".../tma-devkit.js">` | Static sites, no Node.js |
-| 4 | **Panel UI** — paste URL | Quick testing of any URL |
+#### 1. Vite Plugin (recommended for React/Vite)
+
+```ts
+// vite.config.ts
+import devkit from 'tma-devkit/vite-plugin';
+
+export default defineConfig({
+  plugins: [react(), devkit()],
+});
+```
+
+Now `npm run dev` launches your TMA **with DevKit panel as a right sidebar**. Bridge events write to `.tma-devkit/events.jsonl` for AI debugging.
+
+#### 2. npx CLI (zero-install)
+
+```bash
+npx tma-devkit dev --app http://localhost:5173
+```
+
+Launches the DevKit panel on `:5188` and pre-loads your app. No code changes needed.
+
+#### 3. Script tag (static sites / CDN)
+
+```html
+<script src="http://localhost:5188/tma-devkit.js"></script>
+```
+
+The script is inert unless a `#tma_devkit=…` config is present.
+
+#### 4. Use the bundled demo
+
+The panel loads `/demo/index.html` by default. Click around; watch the inspector fill with events.
 
 ---
 
@@ -65,10 +91,49 @@ Then pick your integration:
 
 ### AI Debugging (MCP)
 
-- **8 MCP tools** — `devkit_launch`, `devkit_action` (click/fill/evaluate), `devkit_get_events`, `devkit_analyze`, `devkit_emit`, `devkit_screenshot`, `devkit_get_state`, `devkit_close`
-- **Two modes** — manual (you test in browser, AI analyzes) + automated (AI tests for you in headless Playwright)
-- **Zero-config for Cursor & Claude Code** — `.mcp.json` auto-detected on project open
-- **Cline** — one click in MCP Marketplace after `npm install`
+DevKit includes 8 MCP tools for AI-assisted debugging. Two modes:
+
+| Mode | How it works |
+|---|---|
+| **Manual** | You interact with your TMA in the browser → events write to `.tma-devkit/events.jsonl` → AI reads them via `devkit_get_events` + `devkit_analyze` |
+| **Automated** | You describe a scenario → AI calls `devkit_launch` + `devkit_action` (click/fill/evaluate) in headless Playwright → collects events → analyzes |
+
+**How to set up MCP for your AI client:**
+
+| AI Client | Setup |
+|---|---|
+| **Cursor** | Open the project → `.mcp.json` auto-detected. Ready. |
+| **Claude Code** (CLI) | Open the project → `.mcp.json` auto-detected. Ready. |
+| **Cline** (VS Code) | MCP Marketplace → search `tma-devkit` → Install. Or manually: `npx tma-devkit-mcp`. |
+| **Claude Desktop** | Add `npx tma-devkit-mcp` to `claude_desktop_config.json`. |
+
+**Example: manual debugging**
+
+```
+You: "Why did my app crash after the payment button?"
+
+AI reads .tma-devkit/events.jsonl → finds:
+  - web_app_open_invoice (slug=donate_10)
+  - web_app_close (return_back=false)  ← app closed immediately!
+
+AI: "Your app closed right after opening the invoice.
+     The close() was called at Payments.tsx line 42 — 
+     unhandled promise rejection in handlePayment()."
+```
+
+**Example: automated testing**
+
+```
+You: "Test the registration flow as Free Android"
+
+AI → devkit_launch("http://localhost:5173", "free-android")
+AI → devkit_action("click", "#register-btn")
+AI → devkit_action("fill", "input[name=name]", "Ivan")
+AI → devkit_action("click", "#submit")
+AI → devkit_get_events → devkit_analyze
+
+AI: "Registration flow: 12 events. ⚠️ sendData with empty payload.
+     Check handleRegister() at Registration.tsx:87."
 
 ### Other features
 
