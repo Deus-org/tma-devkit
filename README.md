@@ -91,7 +91,7 @@ Then pick your integration:
 │  viewport             │  │ + mock env │  │                     │              │
 │                       │  │  (WebApp)  │──┼── postMessage ──────┘              │
 │                       │  └────────────┘  │                                    │
-│  emit console ────────┼─►               ◄─┼── theme_changed …                 │
+│  emit console ────────┼─►              ◄─┼── theme_changed …                  │
 │                       └──────────────────┘                                    │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
