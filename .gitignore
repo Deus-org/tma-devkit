@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 dist-tma-devkit
+.tma-devkit/
+tma-devkit/npm-package/cli.js
+tma-devkit/npm-package/vite-plugin.js
+tma-devkit/npm-package/vite-plugin.d.ts
+tma-devkit/npm-package/tma-devkit.js
 *.local
 
 # Editor directories and files
