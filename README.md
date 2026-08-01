@@ -83,11 +83,11 @@ Then pick your integration:
 
 ```
 ┌─────────────────────────── TMA DevKit panel (React) ──────────────────────────┐
-│  config sidebar        device stage                event inspector             │
-│  ─────────────        ┌──────────────────┐        ────────────────             │
+│  config sidebar        device stage                event inspector            │
+│  ─────────────        ┌──────────────────┐        ────────────────            │
 │  Quick scenarios,     │ iframe           │        web_app_ready ▲             │
 │  platform/theme,      │  ┌────────────┐  │        web_app_expand  {payload}   │
-│  user/botToken ──────►│  │ your app   │  │──► #tma_devkit=…                  │
+│  user/botToken ──────►│  │ your app   │  │──► #tma_devkit=…                   │
 │  viewport             │  │ + mock env │  │                     │              │
 │                       │  │  (WebApp)  │──┼── postMessage ──────┘              │
 │                       │  └────────────┘  │                                    │
