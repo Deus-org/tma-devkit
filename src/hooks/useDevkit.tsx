@@ -13,7 +13,6 @@ import {
   defaultConfig,
   isBridgeEvent,
   isDevkitControlMessage,
-  toWireConfig,
   type BridgeLogEntry,
   type DevkitConfig,
   type DevkitPreset,
@@ -107,10 +106,17 @@ export function DevkitProvider({ children }: { children: ReactNode }) {
 
   const appendLog = useCallback((dir: 'out' | 'in', eventType: string, data: unknown) => {
     if (pausedRef.current) return;
+    const entry = { id: ++logId, ts: Date.now(), dir, eventType, data };
     setLogs((prev) => {
-      const next = [...prev, { id: ++logId, ts: Date.now(), dir, eventType, data }];
+      const next = [...prev, entry];
       return next.length > MAX_LOGS ? next.slice(next.length - MAX_LOGS) : next;
     });
+    // Write to .tma-devkit/events.jsonl for AI debugging (fire-and-forget)
+    fetch(`${window.location.origin}/__tma_devkit_event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    }).catch(() => { /* server may not be available */ });
   }, []);
 
   useEffect(() => {
@@ -153,7 +159,7 @@ export function DevkitProvider({ children }: { children: ReactNode }) {
     setAppUrl(null);
     setIframeUrl(buildIframeUrl(c));
     setReloadKey((k) => k + 1);
-    try { localStorage.setItem(PRESET_ACTIVE_KEY, JSON.stringify(c)); } catch {}
+    try { localStorage.setItem(PRESET_ACTIVE_KEY, JSON.stringify(c)); } catch { /* quota exceeded — silently ignore */ }
   }, []);
 
   const apply = useCallback(() => {
@@ -162,7 +168,7 @@ export function DevkitProvider({ children }: { children: ReactNode }) {
     setAppUrl(null);
     setIframeUrl(buildIframeUrl(configRef.current));
     setReloadKey((k) => k + 1);
-    try { localStorage.setItem(PRESET_ACTIVE_KEY, JSON.stringify(configRef.current)); } catch {}
+    try { localStorage.setItem(PRESET_ACTIVE_KEY, JSON.stringify(configRef.current)); } catch { /* quota exceeded — silently ignore */ }
   }, []);
 
   const pushLive = useCallback(() => {
@@ -251,10 +257,10 @@ export function DevkitProvider({ children }: { children: ReactNode }) {
   return <DevkitContext.Provider value={value}>{children}</DevkitContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDevkit(): DevkitContextValue {
   const ctx = useContext(DevkitContext);
   if (!ctx) throw new Error('useDevkit must be used inside <DevkitProvider>');
   return ctx;
 }
 
-export { toWireConfig };

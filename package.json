@@ -1,6 +1,9 @@
 {
   "name": "tma-devkit",
   "private": true,
+  "bin": {
+    "tma-devkit": "./dist-tma-devkit/cli.js"
+  },
   "version": "0.1.0",
   "type": "module",
   "description": "Local emulator & bridge inspector for Telegram Mini Apps — mocked window.Telegram.WebApp, signed initData, theme/platform/user presets, live event inspector.",
@@ -16,6 +19,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:tma-devkit": "tsc -p tma-devkit/tsconfig.json",
+    "build:mcp": "cd mcp && npx tsc -p tsconfig.json",
+    "build:all": "npm run build && npm run build:tma-devkit && npm run build:mcp",
     "lint": "eslint .",
     "preview": "vite preview",
     "verify:hmac": "node scripts/verify-hmac.mjs",

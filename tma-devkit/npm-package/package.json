@@ -2,13 +2,25 @@
   "name": "tma-devkit",
   "version": "0.1.0",
   "description": "TMA DevKit mock script — drop-in Telegram Mini App emulation for development and testing",
+  "type": "module",
   "license": "MIT",
   "main": "tma-devkit.js",
   "browser": "tma-devkit.js",
   "types": "tma-devkit.d.ts",
+  "bin": {
+    "tma-devkit": "cli.js"
+  },
+  "exports": {
+    ".": "./tma-devkit.js",
+    "./vite-plugin": "./vite-plugin.js",
+    "./cli": "./cli.js"
+  },
   "files": [
     "tma-devkit.js",
     "tma-devkit.d.ts",
+    "vite-plugin.js",
+    "vite-plugin.d.ts",
+    "cli.js",
     "README.md"
   ],
   "keywords": [
@@ -25,5 +37,17 @@
     "type": "git",
     "url": "https://github.com/Deus-org/tma-devkit.git"
   },
-  "homepage": "https://github.com/Deus-org/tma-devkit#readme"
+  "homepage": "https://github.com/Deus-org/tma-devkit#readme",
+  "scripts": {
+    "build": "node scripts/copy-files.js",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  }
 }

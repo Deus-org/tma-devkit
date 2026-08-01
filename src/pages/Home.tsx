@@ -108,7 +108,7 @@ function DevkitUI() {
             docs ↗
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/Deus-org/tma-devkit"
             target="_blank"
             rel="noreferrer"
             className="text-zinc-500 hover:text-zinc-300 transition-colors"

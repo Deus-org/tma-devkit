@@ -98,6 +98,20 @@ export function ConfigPanel() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [csDialogOpen, setCsDialogOpen] = useState(false);
   const [cloudKeys, setCloudKeys] = useState<Array<{ key: string; value: string }>>([]);
+
+  function loadCloudKeys() {
+    const prefix = 'tma-devkit:cloud:';
+    const keys: Array<{ key: string; value: string }> = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(prefix)) {
+          keys.push({ key: k.slice(prefix.length), value: localStorage.getItem(k) ?? '' });
+        }
+      }
+    } catch { /* storage read may fail in sandboxed contexts */ }
+    setCloudKeys(keys);
+  }
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyValue, setNewKeyValue] = useState('');
 
@@ -355,10 +369,14 @@ export function ConfigPanel() {
                 <Button key={scheme} size="sm"
                   variant={config.colorScheme === scheme ? 'default' : 'outline'}
                   className={config.colorScheme === scheme ? 'h-7 text-xs' : 'h-7 border-zinc-700 text-xs text-zinc-400'}
-                  onClick={() => setConfig((c) => ({
-                    ...c, colorScheme: scheme,
-                    themeParams: { ...(scheme === 'dark' ? THEME_DARK : THEME_LIGHT) },
-                  }))}
+                  onClick={() => {
+                    setConfig((c) => ({
+                      ...c, colorScheme: scheme,
+                      themeParams: { ...(scheme === 'dark' ? THEME_DARK : THEME_LIGHT) },
+                    }));
+                    // Auto-push theme change to iframe without reload
+                    setTimeout(() => pushLive(), 50);
+                  }}
                 >{scheme}</Button>
               ))}
             </div>
@@ -470,7 +488,7 @@ export function ConfigPanel() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <SectionTitle>CloudStorage</SectionTitle>
-            <Dialog open={csDialogOpen} onOpenChange={setCsDialogOpen}>
+            <Dialog open={csDialogOpen} onOpenChange={(open) => { if (open) loadCloudKeys(); setCsDialogOpen(open); }}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10px] text-zinc-500 hover:text-zinc-300">
                   <Cloud className="mr-1 h-3 w-3" /> Manage keys
@@ -491,7 +509,10 @@ export function ConfigPanel() {
                       <Key className="h-3 w-3 shrink-0 text-zinc-600" />
                       <code className="flex-1 text-[10px] text-zinc-300 truncate">{kv.key}</code>
                       <code className="text-[10px] text-zinc-500 truncate max-w-[120px]">{kv.value}</code>
-                      <button onClick={() => setCloudKeys((prev) => prev.filter((_, j) => j !== i))} className="text-zinc-600 hover:text-red-400">
+                      <button onClick={() => {
+                        localStorage.removeItem('tma-devkit:cloud:' + kv.key);
+                        setCloudKeys((prev) => prev.filter((_, j) => j !== i));
+                      }} className="text-zinc-600 hover:text-red-400">
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>

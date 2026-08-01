@@ -1,0 +1,11 @@
+# TMA DevKit npm package — only ship built artifacts
+*
+!tma-devkit.js
+!tma-devkit.d.ts
+!cli.js
+!vite-plugin.js
+!vite-plugin.d.ts
+!README.md
+!package.json
+!scripts/
+!scripts/copy-files.js

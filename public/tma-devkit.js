@@ -281,7 +281,7 @@
     //   window.parent.postMessage(JSON.stringify({eventType, eventData}), '*')
     // In a standalone tab the official script reaches the {notAvailable:true}
     // branch and posts nothing — we do the same so no messages echo back.
-    if (!isIframe()) return;
+    if (!isIframe() && !window.__tmaDevkitForcePost) return;
     try {
       window.parent.postMessage(JSON.stringify(payload), '*');
     } catch (e) {}
