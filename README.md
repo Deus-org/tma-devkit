@@ -143,23 +143,23 @@ AI: "Registration flow: 12 events. ⚠️ sendData with empty payload.
 - **Live push** — theme/viewport changes without reload
 
 ---
-
+```
 ## How it works
+```
+┌─────────────────────────── TMA DevKit panel (React) ──────────────────────────┐ 
+│  config sidebar        device stage                event inspector            │ 
+│  ─────────────        ┌──────────────────┐        ────────────────            │ 
+│  Quick scenarios,     │ iframe           │        web_app_ready ▲             │ 
+│  platform/theme,      │  ┌────────────┐  │        web_app_expand  {payload}   │ 
+│  user/botToken ──────►│  │ your app   │  │──► #tma_devkit=…                   │ 
+│  viewport             │  │ + mock env │  │                     │              │ 
+│                       │  │  (WebApp)  │──┼── postMessage ──────┘              │ 
+│                       │  └────────────┘  │                                    │ 
+│  emit console ────────┼─►              ◄─┼── theme_changed …                  │ 
+│                       └──────────────────┘                                    │ 
+└───────────────────────────────────────────────────────────────────────────────┘ 
+```
 
-```
-┌─────────────────────────── TMA DevKit panel (React) ──────────────────────────┐
-│  config sidebar        device stage                event inspector            │
-│  ─────────────        ┌──────────────────┐        ────────────────            │
-│  Quick scenarios,     │ iframe           │        web_app_ready ▲             │
-│  platform/theme,      │  ┌────────────┐  │        web_app_expand  {payload}   │
-│  user/botToken ──────►│  │ your app   │  │──► #tma_devkit=…                   │
-│  viewport             │  │ + mock env │  │                     │              │
-│                       │  │  (WebApp)  │──┼── postMessage ──────┘              │
-│                       │  └────────────┘  │                                    │
-│  emit console ────────┼─►              ◄─┼── theme_changed …                  │
-│                       └──────────────────┘                                    │
-└───────────────────────────────────────────────────────────────────────────────┘
-```
 
 1. Panel encodes config as base64url JSON → `#tma_devkit=…` on the iframe URL
 2. Mock parses it, replaces fragment with real Telegram launch params, builds `window.Telegram.WebApp`
