@@ -1,4 +1,4 @@
-# TMA DevKit npm package — only ship built artifacts
+# TMA DevKit npm package — ship built artifacts + panel
 *
 !tma-devkit.js
 !tma-devkit.d.ts
@@ -9,3 +9,5 @@
 !package.json
 !scripts/
 !scripts/copy-files.js
+!dist/
+!dist/**

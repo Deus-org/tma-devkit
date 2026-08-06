@@ -1,6 +1,6 @@
 {
   "name": "tma-devkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TMA DevKit mock script — drop-in Telegram Mini App emulation for development and testing",
   "type": "module",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "vite-plugin.js",
     "vite-plugin.d.ts",
     "cli.js",
-    "README.md"
+    "README.md",
+    "dist"
   ],
   "keywords": [
     "telegram",

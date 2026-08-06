@@ -29,7 +29,11 @@ function getArg(name: string, fallback: string): string {
 const PORT = parseInt(getArg('--port', '5188'), 10);
 const APP_URL = getArg('--app', '');
 
-const DIST_DIR = resolve(__dirname, '..', 'dist');
+// In npm package: cli.js sits at <pkg>/cli.js, panel at <pkg>/dist/
+// In dev repo:    cli.js sits at <repo>/dist-tma-devkit/cli.js, panel at <repo>/dist/
+const DIST_DIR = existsSync(resolve(__dirname, 'dist'))
+  ? resolve(__dirname, 'dist')
+  : resolve(__dirname, '..', 'dist');
 
 function serveStatic(res: ServerResponse, filePath: string, contentType: string) {
   try {
